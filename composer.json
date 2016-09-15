@@ -1,0 +1,21 @@
+{
+    "name": "as3/symfony-data-importer",
+    "license": "MIT",
+    "type": "library",
+    "description": "Symfony console application to handle data importing.",
+    "authors": [
+        {
+            "name": "Josh Worden",
+            "email": "solocommand@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "As3\\SymfonyData\\": "src/"
+        }
+    },
+    "require": {
+        "php": ">=5.5",
+        "symfony/console": "^3.0"
+    }
+}
