@@ -74,6 +74,30 @@ abstract class Segment implements SegmentInterface
     abstract public function persist(array $items);
 
     /**
+     * Returns query criteria
+     */
+    protected function getCriteria()
+    {
+        return [];
+    }
+
+    /**
+     * Returns included fields
+     */
+    protected function getFields()
+    {
+        return [];
+    }
+
+    /**
+     * Returns query sort
+     */
+    protected function getSort()
+    {
+        return [];
+    }
+
+    /**
      * Performs character set conversion
      * @see     mb_convert_encoding()
      *
