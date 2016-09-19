@@ -39,6 +39,7 @@ class Configuration
      * @var ImporterInterface[]
      */
     private $importers = [];
+    public $importerKeys = [];
 
     /**
      * Available Importer Segments
@@ -46,6 +47,7 @@ class Configuration
      * @var SegmentInterface[]
      */
     private $segments = [];
+    public $segmentKeys = [];
 
     /**
      * @param   string                  $contextKey     The context key use for detecting importer support
@@ -71,6 +73,31 @@ class Configuration
             }
         }
         $this->touch();
+    }
+
+    public function __sleep()
+    {
+        $iKeys = $sKeys = [];
+        foreach ($this->importers as $importer) {
+            $iKeys[$importer->getKey()] = $importer->isEnabled();
+        }
+        $this->importerKeys = $iKeys;
+        foreach ($this->segments as $segment) {
+            $iKeys[$segment->getKey()] = $segment->isEnabled();
+        }
+        $this->segmentKeys = $sKeys;
+        return [
+            'filename',
+            'modified',
+            'contextKey',
+            'dataMode',
+            'progressiveMode',
+            'elasticMode',
+            'subscriberMode',
+            'schemaMode',
+            'importerKeys',
+            'segmentKeys',
+        ];
     }
 
     public function touch()

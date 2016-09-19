@@ -57,7 +57,7 @@ final class Import extends Command
     {
         if ($this->input->getOption('assume')) {
             $configs = $this->importManager->all();
-            $config = reset($config);
+            $config = reset($configs);
             if (null !== $config) {
                 $this->importManager->load($config->getFilename());
                 return;

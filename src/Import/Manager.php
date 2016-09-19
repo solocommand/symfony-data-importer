@@ -64,13 +64,39 @@ class Manager
     {
         $path = sprintf('%s/%s', $this->storagePath, $filename);
         $this->configuration = ConfigurationFactory::load($path);
+        $this->initializeConfiguration();
         return $this->configuration;
+    }
+
+    /**
+     * Translate keys for importers and segments back into the currently loaded services.
+     */
+    private function initializeConfiguration()
+    {
+        foreach ($this->importers as $importer) {
+            $this->configuration->addImporter($importer);
+        }
+
+        foreach ($this->configuration->segmentKeys as $key => $bit) {
+            if (true === $bit) {
+                $this->configuration->getSegment($key)->enable();
+            } else {
+                $this->configuration->getSegment($key)->disable();
+            }
+        }
+
+        foreach ($this->configuration->importerKeys as $key => $bit) {
+            if (true === $bit) {
+                $this->configuration->getImporter($key)->enable();
+            } else {
+                $this->configuration->getImporter($key)->disable();
+            }
+        }
     }
 
     public function save()
     {
         $this->configuration = ConfigurationFactory::save($this->configuration, $this->storagePath);
-        var_dump($this->storagePath.'/'.$this->configuration->getFilename());
         return $this->configuration;
     }
 
