@@ -1,6 +1,6 @@
 <?php
 
-namespace Cygnus\ApplicationBundle\Import;
+namespace As3\SymfonyData\Import;
 
 interface SourceInterface
 {

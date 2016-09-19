@@ -59,12 +59,12 @@ final class Import extends Command
             $configs = $this->importManager->all();
             $config = reset($config);
             if (null !== $config) {
-                $this->importManager->load($config);
+                $this->importManager->load($config->getFilename());
                 return;
             }
         }
 
-        while (null !== $key = $this->listConfigurations()) {
+        while ('' !== $key = $this->listConfigurations()) {
             if ('new' === $key) {
                 $config = $this->importManager->create();
                 $this->modifyConfiguration($config);
@@ -78,7 +78,7 @@ final class Import extends Command
                     return $this->doCommandConfiguration();
                 }
 
-                $this->importManager->load($config);
+                $this->importManager->load($config->getFilename());
                 if ($this->confirm('<question>Modify loaded configuration?</question>', false)) {
                     $this->modifyConfiguration($config);
                 }
@@ -100,13 +100,13 @@ final class Import extends Command
         foreach ($configs as $config) {
             $enabledImporters = [];
             foreach ($config->getImporters() ?: [] as $key => $value) {
-                if (true === $value) {
+                if (true === $value->isEnabled()) {
                     $enabledImporters[] = $key;
                 }
             }
             $enabledModels = [];
             foreach ($config->getSegments() ?: [] as $key => $value) {
-                if (true === $value) {
+                if (true === $value->isEnabled()) {
                     $enabledModels[] = $key;
                 }
             }
@@ -178,7 +178,7 @@ final class Import extends Command
         $this->configureSegments();
 
         if ($this->confirm('<question>Save Configuration?</question>', false)) {
-            $this->importManager->getConfiguration()->update($config);
+            $this->importManager->save();
         }
     }
 
@@ -200,7 +200,7 @@ final class Import extends Command
         $this->writeln('Configure <info>Importers</info>', true, true);
         $config = $this->importManager->getConfiguration();
 
-        while (null !== $key = $this->listImporters()) {
+        while ('' !== $key = $this->listImporters()) {
             $segmentKeys = [];
             foreach ($this->importManager->getImportersForContext(true) as $index => $importer) {
                 if ($key == $index || '*' === $key) {
@@ -234,7 +234,7 @@ final class Import extends Command
         $this->writeln('Configure <info>Segments</info>', true, true);
         $config = $this->importManager->getConfiguration();
 
-        while (null !== $key = $this->listSegments()) {
+        while ('' !== $key = $this->listSegments()) {
             $segmentKeys = [];
             foreach ($config->getSegments(true) as $index => $segment) {
                 if ($key == $index || '*' === $key) {

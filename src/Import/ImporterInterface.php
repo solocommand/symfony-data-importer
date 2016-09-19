@@ -1,6 +1,6 @@
 <?php
 
-namespace Cygnus\ApplicationBundle\Import;
+namespace As3\SymfonyData\Import;
 
 interface ImporterInterface
 {
@@ -35,7 +35,7 @@ interface ImporterInterface
      *
      * @return  bool
      */
-    public function supports($contextKey);
+    public function supports(Configuration $configuration);
 
     /**
      * Returns the list of segment keys and SCNs this importer supports
@@ -43,10 +43,6 @@ interface ImporterInterface
      * @return  array
      */
     public function getSegments();
-
-    /**
-     */
-    public function getTransformerManager();
 
     /**
      * Hook that is called after schema is updated

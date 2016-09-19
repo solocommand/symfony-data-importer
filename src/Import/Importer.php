@@ -1,8 +1,6 @@
 <?php
 
-namespace Cygnus\ApplicationBundle\Import;
-
-use Cygnus\ApplicationBundle\EmbeddedMedia\Tag\Transformer\TransformerManager;
+namespace As3\SymfonyData\Import;
 
 /**
  *
@@ -56,19 +54,23 @@ abstract class Importer implements ImporterInterface
      * @param   PersisterInterface  $persister
      * @param   SourceInterface     $source
      */
-    public function __construct(PersisterInterface $persister, SourceInterface $source, TransformerManager $transformerManager)
+    public function __construct(PersisterInterface $persister, SourceInterface $source)
     {
         $this->persister = $persister;
         $this->source = $source;
-        $this->transformerManager = $transformerManager;
+    }
+
+    final public function setConfiguration(Configuration $configuration)
+    {
+        return $this->persister->setConfiguration($configuration);
     }
 
     /**
      * {@inheritdoc}
      */
-    final public function supports($contextKey)
+    final public function supports(Configuration $configuration)
     {
-        return in_array($contextKey, $this->supportedContexts);
+        return in_array($configuration->getContextKey(), $this->supportedContexts);
     }
 
     /**
@@ -111,14 +113,6 @@ abstract class Importer implements ImporterInterface
             }
         }
         throw new Exception\ImporterException(sprintf('Could not retrieve segment "%s"!', $key));
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    final public function getTransformerManager()
-    {
-        return $this->transformerManager;
     }
 
     /**

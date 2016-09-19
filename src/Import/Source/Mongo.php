@@ -1,8 +1,8 @@
 <?php
 
-namespace Cygnus\ApplicationBundle\Import\Source;
+namespace As3\SymfonyData\Import\Source;
 
-use Cygnus\ApplicationBundle\Import\Source;
+use As3\SymfonyData\Import\Source;
 use Doctrine\MongoDB\Connection;
 use Doctrine\MongoDB\Query\Builder;
 

@@ -51,18 +51,26 @@ class Manager
 
     public function create()
     {
-        return $this->configuration = ConfigurationFactory::create($this->contextKey);
+        $this->configuration = ConfigurationFactory::create($this->contextKey);
+        foreach ($this->importers as $importer) {
+            if ($importer->supports($this->configuration)) {
+                $this->configuration->addImporter($importer);
+            }
+        }
+        return $this->configuration;
     }
 
     public function load($filename)
     {
-        $this->configuration = ConfigurationFactory::load($filename);
+        $path = sprintf('%s/%s', $this->storagePath, $filename);
+        $this->configuration = ConfigurationFactory::load($path);
         return $this->configuration;
     }
 
     public function save()
     {
         $this->configuration = ConfigurationFactory::save($this->configuration, $this->storagePath);
+        var_dump($this->storagePath.'/'.$this->configuration->getFilename());
         return $this->configuration;
     }
 
@@ -92,8 +100,8 @@ class Manager
     public function addImporter(ImporterInterface $importer)
     {
         if ($importer->supports($this->configuration)) {
+            $this->importers[] = $importer;
             $this->configuration->addImporter($importer);
-            // $importer->setConfiguration($this->configuration); // Move to config
         }
     }
 

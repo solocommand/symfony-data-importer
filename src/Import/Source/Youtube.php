@@ -1,8 +1,8 @@
 <?php
 
-namespace Cygnus\ApplicationBundle\Import\Source;
+namespace As3\SymfonyData\Import\Source;
 
-use Cygnus\ApplicationBundle\Import\Source;
+use As3\SymfonyData\Import\Source;
 use Cygnus\ApiSuiteBundle\ApiClient\Google\ApiClientYoutube;
 use Cygnus\ModlrBundle\Component\Utility;
 use Symfony\Component\HttpFoundation\Response;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Cygnus\ApplicationBundle\Import;
+namespace As3\SymfonyData\Import;
 
 /**
  * This interface ensures the class can be used with the Console's loop command.
