@@ -173,6 +173,7 @@ final class As3Modlr extends Persister
         }
 
         $model = $this->storageEngine->create($scn, $identifier)->apply($kvs);
+        $legacy = $kvs['legacy'];
         $kvs = $this->extractRawModelValues($scn, $model);
 
         $em = $this->getMetadataFor($scn);
@@ -192,6 +193,8 @@ final class As3Modlr extends Persister
         if (isset($kvs['_id']) && $kvs['_id'] !== $identifier) {
             $kvs['_id'] = $identifier;
         }
+
+        $kvs['legacy'] = $legacy;
 
         return $kvs;
     }
