@@ -10,6 +10,7 @@ use As3\Modlr\Store\Store;
 use As3\Modlr\Exception\MetadataException;
 // use Cygnus\ApplicationBundle\ModelRouting\ModelRouter;
 // use Cygnus\ApplicationBundle\ModelRouting\As3ModelRedirects;
+use As3\Modlr\Metadata\AttributeMetadata;
 
 /**
  * Utilizes the As3Modlr Store class to persist data
@@ -167,7 +168,7 @@ final class As3Modlr extends Persister
      */
     public function sanitizeModel($scn, array $kvs)
     {
-        $identifier = isset($kvs['_id']) ? $kvs['_id'] : null;
+        $identifier = $oId = isset($kvs['_id']) ? $kvs['_id'] : null;
         if ($identifier instanceof \MongoId) {
             $identifier = (string) $identifier;
         }
@@ -175,14 +176,42 @@ final class As3Modlr extends Persister
         $model = $this->storageEngine->create($scn, $identifier)->apply($kvs);
         $legacy = $kvs['legacy'];
         $kvs = $this->extractRawModelValues($scn, $model);
-
         $em = $this->getMetadataFor($scn);
+
         foreach ($em->attributes as $attribute) {
-            if (!isset($kvs[$attribute->getKey()])) {
+            $key = $attribute->getKey();
+            if (!isset($kvs[$key])) {
                 continue;
             }
-            if ('object' === $attribute->dataType) {
-                $kvs[$attribute->getKey()] = json_decode(json_encode($kvs[$attribute->getKey()]), true);
+            $value = &$kvs[$key];
+            $value = $this->sanitizeAttribute($attribute, $value);
+        }
+
+        foreach ($em->embeds as $embed) {
+            $key = $embed->getKey();
+            if (!isset($kvs[$key])) {
+                continue;
+            }
+            if ('many' === $embed->embedType) {
+                foreach ($kvs[$key] as $k => $v) {
+                    foreach ($embed->embedMeta->attributes as $attribute) {
+                        $attrKey = $attribute->getKey();
+                        if (!isset($v[$attrKey])) {
+                            continue;
+                        }
+                        $value = &$kvs[$key][$k][$attrKey];
+                        $value = $this->sanitizeAttribute($attribute, $value);
+                    }
+                }
+            } else {
+                foreach ($embed->embedMeta->attributes as $attribute) {
+                    $attrKey = $attribute->getKey();
+                    if (!isset($kvs[$key][$attrKey])) {
+                        continue;
+                    }
+                    $value = &$kvs[$key][$attrKey];
+                    $value = $this->sanitizeAttribute($attribute, $value);
+                }
             }
         }
 
@@ -190,13 +219,21 @@ final class As3Modlr extends Persister
             unset($kvs['_id']);
         }
 
-        if (isset($kvs['_id']) && $kvs['_id'] !== $identifier) {
-            $kvs['_id'] = $identifier;
+        if (isset($kvs['_id']) && $kvs['_id'] !== $oId) {
+            $kvs['_id'] = $oId;
         }
 
         $kvs['legacy'] = $legacy;
 
         return $kvs;
+    }
+
+    private function sanitizeAttribute(AttributeMetadata $md, $value)
+    {
+        if ('object' === $md->dataType) {
+            $value = json_decode(json_encode($value), true);
+        }
+        return $value;
     }
 
     /**
