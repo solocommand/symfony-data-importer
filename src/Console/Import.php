@@ -98,18 +98,8 @@ final class Import extends Command
         $question = '<question>Load Configuration:</question>';
         $items = [];
         foreach ($configs as $config) {
-            $enabledImporters = [];
-            foreach ($config->getImporters() ?: [] as $key => $value) {
-                if (true === $value->isEnabled()) {
-                    $enabledImporters[] = $key;
-                }
-            }
-            $enabledModels = [];
-            foreach ($config->getSegments() ?: [] as $key => $value) {
-                if (true === $value->isEnabled()) {
-                    $enabledModels[] = $key;
-                }
-            }
+            $enabledImporters = $config->getImporterKeys();
+            $enabledSegments = $config->getSegmentKeys();
             $dataMode = 'not set';
             switch ($config->getDataMode()) {
                 case 'wipe':
@@ -132,7 +122,7 @@ final class Import extends Command
                 $date,
                 $dataMode,
                 sprintf('<info>%s</info>', implode('</info>, <info>', $enabledImporters)),
-                sprintf('<info>%s</info>', implode('</info>, <info>', $enabledModels))
+                sprintf('<info>%s</info>', implode('</info>, <info>', $enabledSegments))
                 );
         }
         $items['new'] = sprintf('<comment>Create new Configuration</comment>');

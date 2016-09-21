@@ -83,7 +83,7 @@ class Configuration
         }
         $this->importerKeys = $iKeys;
         foreach ($this->segments as $segment) {
-            $iKeys[$segment->getKey()] = $segment->isEnabled();
+            $sKeys[$segment->getKey()] = $segment->isEnabled();
         }
         $this->segmentKeys = $sKeys;
         return [
@@ -226,13 +226,20 @@ class Configuration
         return $this;
     }
 
-    public function addImporter(ImporterInterface $importer)
+    public function addImporter(ImporterInterface $importer, $enabled = true)
     {
         $this->importers[] = $importer;
+        $this->importerKeys[$importer->getKey()] = $enabled;
         foreach ($importer->getSegments() as $segment) {
-            $this->addSegment($segment);
+            $segmentEnabled = isset($this->segmentKeys[$segment->getKey()]) ? $this->segmentKeys[$segment->getKey()] : true;
+            $this->addSegment($segment, $segmentEnabled);
         }
         $importer->setConfiguration($this);
+        if ($enabled) {
+            $importer->enable();
+        } else {
+            $importer->disable();
+        }
     }
 
     public function hasSegment(SegmentInterface $segment)
@@ -255,10 +262,16 @@ class Configuration
         return false;
     }
 
-    public function addSegment(SegmentInterface $segment)
+    public function addSegment(SegmentInterface $segment, $enabled = true)
     {
         if (false === $this->hasSegment($segment)) {
+            $this->segmentKeys[$segment->getKey()] = $enabled;
             $this->segments[] = $segment;
+        }
+        if ($enabled) {
+            $segment->enable();
+        } else {
+            $segment->disable();
         }
     }
 
@@ -306,6 +319,48 @@ class Configuration
             }
         }
         throw new \InvalidArgumentException(sprintf('Importer could not be found by key `%s`.', $key));
+    }
+
+    /**
+     * Returns the stored enabled importers for this model.
+     *
+     * @param   bool    $all    If all importers should be returned, regardless of status.
+     * @return  array
+     */
+    public function getImporterKeys($all = false)
+    {
+        $keys = [];
+        if ($all) {
+            $keys = $this->importerKeys;
+        } else {
+            foreach ($this->importerKeys as $key => $bit) {
+                if ($bit) {
+                    $keys[] = $key;
+                }
+            }
+        }
+        return $keys;
+    }
+
+    /**
+     * Returns the stored enabled segments for this model.
+     *
+     * @param   bool    $all    If all segments should be returned, regardless of status.
+     * @return  array
+     */
+    public function getSegmentKeys($all = false)
+    {
+        $keys = [];
+        if ($all) {
+            $keys = $this->segmentKeys;
+        } else {
+            foreach ($this->segmentKeys as $key => $bit) {
+                if ($bit) {
+                    $keys[] = $key;
+                }
+            }
+        }
+        return $keys;
     }
 
     /**

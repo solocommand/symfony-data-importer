@@ -74,23 +74,8 @@ class Manager
     private function initializeConfiguration()
     {
         foreach ($this->importers as $importer) {
-            $this->configuration->addImporter($importer);
-        }
-
-        foreach ($this->configuration->segmentKeys as $key => $bit) {
-            if (true === $bit) {
-                $this->configuration->getSegment($key)->enable();
-            } else {
-                $this->configuration->getSegment($key)->disable();
-            }
-        }
-
-        foreach ($this->configuration->importerKeys as $key => $bit) {
-            if (true === $bit) {
-                $this->configuration->getImporter($key)->enable();
-            } else {
-                $this->configuration->getImporter($key)->disable();
-            }
+            $enabled = in_array($importer->getKey(), $this->configuration->getImporterKeys());
+            $this->configuration->addImporter($importer, $enabled);
         }
     }
 
